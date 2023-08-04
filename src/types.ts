@@ -28,7 +28,7 @@ export type Country = {
    name: {
       common: string;
       official: string;
-      nativeName: {
+      nativeName?: {
          [key: string]: {
             common: string;
             official: string;

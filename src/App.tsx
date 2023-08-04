@@ -1,19 +1,18 @@
 import * as React from 'react';
-import ReactDOM from 'react-dom/server';
 import * as L from 'leaflet';
-
-// Styles
-import 'leaflet/dist/leaflet.css';
-import './App.scss';
+import ReactDOM from 'react-dom/server';
 import { getAllCountries } from './api/countries';
 import { Country } from './types';
 import CountryDetails from './components/CountryDetails';
 import CountryList from './components/CountryList';
 import { removeDuplicates, style } from './utils';
 import geoJSON from './geo.json';
-import { Layer } from 'leaflet';
 
-const gjsonMarker: any = geoJSON;
+// Styles
+import 'leaflet/dist/leaflet.css';
+import './App.scss';
+
+const jsonMarker: any = geoJSON;
 
 const options: L.MapOptions = {
    center: L.latLng(40.731253, -73.996139),
@@ -59,7 +58,6 @@ const App: React.FC = (): React.JSX.Element => {
                }),
             )
             .on('click', e => markerOnClick(country));
-
          // NOTE: We add the markers to the layers
          markersLayer.addLayer(marker);
       });
@@ -75,25 +73,9 @@ const App: React.FC = (): React.JSX.Element => {
          .once('locationfound', event => {
             // NOTE: We add the markersLayer to the map here. This way, the layer is only added once.
             markersLayer.addTo(event.target);
-
+            L.geoJson(jsonMarker, { style }).addTo(event.target);
             getAllCountries().then(countries => {
                addMarker(countries);
-
-               L.geoJson(gjsonMarker, {
-                  style,
-                  onEachFeature(feature: any, layer: Layer) {
-                     layer.on('click', event => {
-                        console.log(event.target.feature.properties.formal_en);
-
-                        const country = countries.find(country => {
-                           console.log(country.name.official);
-                           return country.name.official === event.target.feature.properties.formal_en;
-                        });
-                        markerOnClick(country!);
-                     });
-                  },
-               }).addTo(myMap.current!);
-
                setCountries(countries);
             });
          });
@@ -106,15 +88,12 @@ const App: React.FC = (): React.JSX.Element => {
    const onSelectRegion = (region: string) => {
       // NOTE: The first thing we do here is clear the markers from the layer.
       markersLayer.clearLayers();
-
       getAllCountries(region).then(countries => {
          addMarker(countries);
       });
    };
 
    function markerOnClick(country: Country) {
-      markersLayer.closeTooltip();
-
       popUp.current = L.popup({
          minWidth: 320,
          closeButton: false,

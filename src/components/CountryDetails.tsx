@@ -37,6 +37,9 @@ const CountryDetails: React.FC<Props> = ({ details }): React.JSX.Element => (
          <li>
             Sub region: <span>{details.subregion}</span>
          </li>
+         <li>
+            Area: <span>{details.area.toLocaleString('fi-FI')} km²</span>
+         </li>
          <li className='country'>
             Alternate Maps:&nbsp;
             <div>
